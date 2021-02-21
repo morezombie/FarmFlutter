@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() => runApp(MyApp());
 
@@ -60,86 +61,110 @@ class _MyCustomFormState extends State<MyCustomForm> {
           padding: const EdgeInsets.all(50.0),
           child: Center(
               child: ListView(children: <Widget>[
-                Container(
-                    child: TextField(
-                      controller: matureMonth,
-                      decoration: InputDecoration(
-                        labelText: '成熟月龄',
-                      ),
-                    )),
-                Container(
-                    child: TextField(
-                      controller: maxKeepMonth,
-                      decoration: InputDecoration(
-                        labelText: '淘汰月龄',
-                      ),
-                    )),
-                Container(
-                    child: TextField(
-                      controller: numPerBirth,
-                      decoration: InputDecoration(
-                        labelText: '每胎产崽数量',
-                      ),
-                    )),
-                Container(
-                    child: TextField(
-                      controller: carryMonth,
-                      decoration: InputDecoration(
-                        labelText: '怀孕月数',
-                      ),
-                    )),
-                Container(
-                    child: TextField(
-                      controller: birthPeriodMonth,
-                      decoration: InputDecoration(
-                        labelText: '产崽间隔月数',
-                      ),
-                    )),
-                Container(
-                    child: TextField(
-                      controller: maleMonthCost,
-                      decoration: InputDecoration(
-                        labelText: '雄性每月饲料花费',
-                      ),
-                    )),
-                Container(
-                    child: TextField(
-                      controller: femaleMonthCost,
-                      decoration: InputDecoration(
-                        labelText: '雌性每月饲料花费',
-                      ),
-                    )),
-                Container(
-                    child: TextField(
-                      controller: priceBigMale,
-                      decoration: InputDecoration(
-                        labelText: '成年雄性买卖价格',
-                      ),
-                    )),
-                Container(
-                    child: TextField(
-                      controller: priceBigFemale,
-                      decoration: InputDecoration(
-                        labelText: '成年雌性买卖价格',
-                      ),
-                    )),
-                Container(
-                    child: TextField(
-                      controller: priceCub,
-                      decoration: InputDecoration(
-                        labelText: '幼崽买卖价格',
-                      ),
-                    )),
-              ]))),
+            Container(
+                child: TextField(
+              controller: matureMonth,
+              decoration: InputDecoration(
+                labelText: '成熟月龄',
+              ),
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              keyboardType: TextInputType.number,
+            )),
+            Container(
+                child: TextField(
+              controller: maxKeepMonth,
+              decoration: InputDecoration(
+                labelText: '淘汰月龄',
+              ),
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              keyboardType: TextInputType.number,
+            )),
+            Container(
+                child: TextField(
+              controller: numPerBirth,
+              decoration: InputDecoration(
+                labelText: '每胎产崽数量',
+              ),
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              keyboardType: TextInputType.number,
+            )),
+            Container(
+                child: TextField(
+              controller: carryMonth,
+              decoration: InputDecoration(
+                labelText: '怀孕月数',
+              ),
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              keyboardType: TextInputType.number,
+            )),
+            Container(
+                child: TextField(
+              controller: birthPeriodMonth,
+              decoration: InputDecoration(
+                labelText: '产崽间隔月数',
+              ),
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              keyboardType: TextInputType.number,
+            )),
+            Container(
+                child: TextField(
+              controller: maleMonthCost,
+              decoration: InputDecoration(
+                labelText: '雄性每月饲料花费',
+              ),
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              keyboardType: TextInputType.number,
+            )),
+            Container(
+                child: TextField(
+              controller: femaleMonthCost,
+              decoration: InputDecoration(
+                labelText: '雌性每月饲料花费',
+              ),
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              keyboardType: TextInputType.number,
+            )),
+            Container(
+                child: TextField(
+              controller: priceBigMale,
+              decoration: InputDecoration(
+                labelText: '成年雄性买卖价格',
+              ),
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              keyboardType: TextInputType.number,
+            )),
+            Container(
+                child: TextField(
+              controller: priceBigFemale,
+              decoration: InputDecoration(
+                labelText: '成年雌性买卖价格',
+              ),
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              keyboardType: TextInputType.number,
+            )),
+            Container(
+                child: TextField(
+              controller: priceCub,
+              decoration: InputDecoration(
+                labelText: '幼崽买卖价格',
+              ),
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              keyboardType: TextInputType.number,
+            )),
+          ]))),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           return showDialog(
               context: context,
-          builder: (context) {
-              return AlertDialog(
-                content: Text("You sure he can have a sex at " + matureMonth.text + "th month and she can give birth to a baby after another " + carryMonth.text + " months?"),
-              );
-          });
+              builder: (context) {
+                return AlertDialog(
+                  content: Text("You sure he can have a sex at " +
+                      matureMonth.text +
+                      "th month and she can give birth to a baby after another " +
+                      carryMonth.text +
+                      " months?"),
+                );
+              });
         },
         child: Text("Go!"),
       ),
