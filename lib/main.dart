@@ -131,6 +131,18 @@ class _MyCustomFormState extends State<MyCustomForm> {
                       ),
                     )),
               ]))),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          return showDialog(
+              context: context,
+          builder: (context) {
+              return AlertDialog(
+                content: Text("You sure he can have a sex at " + matureMonth.text + "th month and she can give birth to a baby after another " + carryMonth.text + " months?"),
+              );
+          });
+        },
+        child: Text("Go!"),
+      ),
     );
   }
 }
