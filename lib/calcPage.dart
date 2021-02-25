@@ -16,6 +16,8 @@ class Initiator extends StatefulWidget {
   _InitiatorState createState() => _InitiatorState();
 }
 
+var itemList = <Widget>[FemaleItem(), MaleItem()];
+
 // Define a corresponding State class.
 // This class holds the data related to the Form.
 class _InitiatorState extends State<Initiator> {
@@ -36,6 +38,7 @@ class _InitiatorState extends State<Initiator> {
     super.dispose();
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,46 +57,9 @@ class _InitiatorState extends State<Initiator> {
         ],
       ),
       body: Padding(
-          padding: const EdgeInsets.all(50.0),
+          padding: const EdgeInsets.fromLTRB(30, 50, 10, 10),
           child: Center(
-              child: ListView(children: <Widget>[
-            Container(
-                child: TextField(
-              controller: maleAge,
-              decoration: InputDecoration(
-                labelText: '成熟月龄',
-              ),
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              keyboardType: TextInputType.number,
-            )),
-            Container(
-                child: TextField(
-              controller: maleNum,
-              decoration: InputDecoration(
-                labelText: '淘汰月龄',
-              ),
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              keyboardType: TextInputType.number,
-            )),
-            Container(
-                child: TextField(
-              controller: femaleAge,
-              decoration: InputDecoration(
-                labelText: '怀孕月数',
-              ),
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              keyboardType: TextInputType.number,
-            )),
-            Container(
-                child: TextField(
-              controller: femaleNum,
-              decoration: InputDecoration(
-                labelText: '产崽间隔月数',
-              ),
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              keyboardType: TextInputType.number,
-            )),
-          ]))),
+              child: ListView(children: itemList))),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           return showDialog(
@@ -112,5 +78,83 @@ class _InitiatorState extends State<Initiator> {
         child: Text("Go!"),
       ),
     );
+  }
+}
+
+class FemaleItem extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        Text('母：'),
+        BaseItem(),
+        IconButton(
+            icon: Icon(Icons.add_circle_outline), onPressed: () {
+          itemList.add(this);
+        }),
+        IconButton(
+            icon: Icon(Icons.remove_circle_outline), onPressed: () {
+          itemList.remove(this);
+        })
+      ],
+    );
+  }
+}
+
+class MaleItem extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        Text('公：'),
+        BaseItem(),
+        IconButton(
+            icon: Icon(Icons.add_circle_outline), onPressed: () {
+          itemList.add(this);
+        }),
+        IconButton(
+            icon: Icon(Icons.remove_circle_outline), onPressed: () {
+              itemList.remove(this);
+        })
+      ],
+    );
+  }
+}
+
+
+class BaseItem extends StatefulWidget {
+  @override
+  _BaseItemState createState() => _BaseItemState();
+}
+
+class _BaseItemState extends State<BaseItem> {
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(child: Row(
+      children: <Widget>[
+        Flexible(
+            child: TextField(
+              // controller: maleNum,
+              decoration: InputDecoration(
+                labelText: '月龄',
+                enabledBorder: OutlineInputBorder(),
+              ),
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              keyboardType: TextInputType.number,
+            )),
+        Text('个月，'),
+        Flexible(
+            child: TextField(
+              // controller: maleNum,
+              decoration: InputDecoration(
+                enabledBorder: OutlineInputBorder(),
+                labelText: '数量',
+              ),
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              keyboardType: TextInputType.number,
+            )),
+        Text('头'),
+      ],
+    ));
   }
 }
