@@ -16,8 +16,6 @@ class Initiator extends StatefulWidget {
   _InitiatorState createState() => _InitiatorState();
 }
 
-var itemList = <Widget>[FemaleItem(), MaleItem()];
-
 // Define a corresponding State class.
 // This class holds the data related to the Form.
 class _InitiatorState extends State<Initiator> {
@@ -28,6 +26,9 @@ class _InitiatorState extends State<Initiator> {
   final femaleAge = TextEditingController();
   final femaleNum = TextEditingController();
 
+  var inputs = InputItems(
+      list: [BaseItem(genderStr: '公'), BaseItem(genderStr: '母')]);
+
   @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
@@ -37,7 +38,6 @@ class _InitiatorState extends State<Initiator> {
     femaleNum.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +58,7 @@ class _InitiatorState extends State<Initiator> {
       ),
       body: Padding(
           padding: const EdgeInsets.fromLTRB(30, 50, 10, 10),
-          child: Center(
-              child: ListView(children: itemList))),
+          child: Center(child: inputs)),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           return showDialog(
@@ -81,80 +80,96 @@ class _InitiatorState extends State<Initiator> {
   }
 }
 
-class FemaleItem extends StatelessWidget {
+class InputItems extends StatefulWidget {
+  final List<BaseItem> list;
+
+  const InputItems({Key key, this.list}) : super(key: key);
+
+  @override
+  _InputItemsState createState() => _InputItemsState();
+}
+
+class _InputItemsState extends State<InputItems> {
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[
-        Text('母：'),
-        BaseItem(),
-        IconButton(
-            icon: Icon(Icons.add_circle_outline), onPressed: () {
-          itemList.add(this);
-        }),
-        IconButton(
-            icon: Icon(Icons.remove_circle_outline), onPressed: () {
-          itemList.remove(this);
-        })
-      ],
+    return ListView.builder(
+      itemCount: widget.list.length,
+      itemBuilder: (BuildContext context, int index) {
+        var curItem = widget.list[index];
+        return Row(
+          children: <Widget>[
+            Expanded(child: curItem),
+            IconButton(
+                icon: Icon(Icons.add_circle_outline),
+                onPressed: () {
+                  setState(() {
+                    print(curItem.genderStr);
+                    var newItem = BaseItem(genderStr: curItem.genderStr);
+                    widget.list.add(newItem);
+                  });
+                }),
+            IconButton(
+                icon: Icon(Icons.remove_circle_outline),
+                onPressed: () {
+                  if (index < 2) return;
+                  setState(() {
+                    widget.list.removeAt(index);
+                  });
+                })
+          ],
+        );
+      },
     );
   }
 }
-
-class MaleItem extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: <Widget>[
-        Text('公：'),
-        BaseItem(),
-        IconButton(
-            icon: Icon(Icons.add_circle_outline), onPressed: () {
-          itemList.add(this);
-        }),
-        IconButton(
-            icon: Icon(Icons.remove_circle_outline), onPressed: () {
-              itemList.remove(this);
-        })
-      ],
-    );
-  }
-}
-
 
 class BaseItem extends StatefulWidget {
+  final genderStr;
+
+  const BaseItem({Key key, this.genderStr}) : super(key: key);
+
   @override
   _BaseItemState createState() => _BaseItemState();
 }
 
 class _BaseItemState extends State<BaseItem> {
+  var genderStr;
+
+  @override
+  void initState() {
+    genderStr = widget.genderStr;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Flexible(child: Row(
+    return Row(
+      // mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
+        Text(genderStr + "："),
         Flexible(
             child: TextField(
-              // controller: maleNum,
-              decoration: InputDecoration(
-                labelText: '月龄',
-                enabledBorder: OutlineInputBorder(),
-              ),
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              keyboardType: TextInputType.number,
-            )),
+          // controller: maleNum,
+          decoration: InputDecoration(
+            labelText: '月龄',
+            enabledBorder: OutlineInputBorder(),
+          ),
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          keyboardType: TextInputType.number,
+        )),
         Text('个月，'),
         Flexible(
             child: TextField(
-              // controller: maleNum,
-              decoration: InputDecoration(
-                enabledBorder: OutlineInputBorder(),
-                labelText: '数量',
-              ),
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              keyboardType: TextInputType.number,
-            )),
+          // controller: maleNum,
+          decoration: InputDecoration(
+            enabledBorder: OutlineInputBorder(),
+            labelText: '数量',
+          ),
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          keyboardType: TextInputType.number,
+        )),
         Text('头'),
       ],
-    ));
+    );
   }
 }
