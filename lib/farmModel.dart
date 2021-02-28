@@ -1,9 +1,7 @@
 import 'farmConfig.dart';
 
-final config = FarmConfig();
-
 class Animal {
-  var ageMonth = .0; // age
+  var ageMonth = 0; // age
   var isMale = false; // gender
   var feedMonth = 0; // feeding cost per month
   var observer; // the money observer
@@ -36,11 +34,9 @@ class Animal {
   int pawn(List<Animal> pack, {bool forced}) => 0;
 
   void getSick() {}
-
 }
 
 class Female extends Animal {
-
   var isBabyMale = true;
   var birthIndex = -1;
   var monthB4Birth = 0;
@@ -65,7 +61,6 @@ class Female extends Animal {
     --monthB4Birth;
   }
 
-
   void giveBirth(List<Animal> pack, var observer) {
     if (monthB4Birth > 0) return;
     for (var i = 0; i < config.numPerBirth; ++i) {
@@ -80,7 +75,8 @@ class Female extends Animal {
       }
       newborn.register(observer);
       pack.add(this);
-      print("Congrats! newborn $gender Cub and pack size goes to ${pack.length}");
+      print(
+          "Congrats! newborn $gender Cub and pack size goes to ${pack.length}");
       isBabyMale = !isBabyMale;
       monthB4Birth = config.birthPeriodMonth;
     }
@@ -114,7 +110,6 @@ class Male extends Animal {
   }
 }
 
-
 class CounterClerk {
   var money = 0;
   var month = 0;
@@ -140,7 +135,7 @@ class CounterClerk {
     print("[selling] cash +$gold, \$$money");
   }
 
-  CounterClerk(this.money);
+  CounterClerk({this.money});
 
   int estimate(List<Animal> pack) {
     var gold = 0;
@@ -176,8 +171,10 @@ class CounterClerk {
     final estate = estimate(pack);
     final wealth = money + estate;
     var increase = 0;
-    if (annualWealth.isNotEmpty) increase = wealth - annualWealth[-1];
-    else increase = 0;
+    if (annualWealth.isNotEmpty)
+      increase = wealth - annualWealth[-1];
+    else
+      increase = 0;
     annualWealth.add(wealth);
     annualIncrease.add(increase);
     print("[estate] money $money and estate $estate makes it $wealth");
@@ -186,28 +183,31 @@ class CounterClerk {
   void show() {}
 }
 
-
 class Farm {
-  List<Animal> pack;
-  CounterClerk clerk;
+  List<Animal> pack = [];
+  var clerk = CounterClerk();
 
   void addAnimal(bool isMale, int age, {int num = 1, bool buying = true}) {
     var gold = 0;
     if (!buying) gold = 0;
-    if (age < config.maturedMonth) gold = config.priceCub;
-    else if (isMale) gold = config.priceMaturedMale;
-    else gold = config.priceMaturedFemale;
+    if (age < config.maturedMonth)
+      gold = config.priceCub;
+    else if (isMale)
+      gold = config.priceMaturedMale;
+    else
+      gold = config.priceMaturedFemale;
 
     for (var i = 0; i < num; ++i) {
       var obj;
-      if (isMale) obj = Male(age);
-      else obj = Female(age);
+      if (isMale)
+        obj = Male(age);
+      else
+        obj = Female(age);
       obj.register(clerk);
       pack.add(obj);
       clerk.onBuy(gold);
     }
   }
-
 
   void run(int month) {
     clerk.syncWallClock(0);

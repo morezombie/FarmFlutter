@@ -27,7 +27,23 @@ class _InitiatorState extends State<Initiator> {
   final femaleNum = TextEditingController();
 
   var inputs = InputItems(
-      list: [BaseItem(genderStr: '公'), BaseItem(genderStr: '母')]);
+      list: List<BaseItem>(), keys: List<GlobalKey<_BaseItemState>>());
+
+  var model = Farm();
+
+  void makeInput(String genderStr) {
+    final key = GlobalKey<_BaseItemState>();
+    var item = BaseItem(key: key, genderStr: genderStr);
+    inputs.list.add(item);
+    inputs.keys.add(key);
+  }
+
+  @override
+  void initState() {
+    makeInput('公');
+    makeInput('母');
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -61,17 +77,13 @@ class _InitiatorState extends State<Initiator> {
           child: Center(child: inputs)),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          return showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  content: Text("You sure he can have a sex at " +
-                      maleAge.text +
-                      "th month and she can give birth to a baby after another " +
-                      femaleAge.text +
-                      " months?"),
-                );
-              });
+          for (var key in inputs.keys) {
+            final num = int.parse(key.currentState.numController.text);
+            final age = int.parse(key.currentState.ageController.text);
+            final isMale = key.currentState.genderStr == '公';
+            model.addAnimal(isMale, age, num: num);
+          }
+          model.run(120);
         },
         child: Text("Go!"),
       ),
@@ -81,8 +93,9 @@ class _InitiatorState extends State<Initiator> {
 
 class InputItems extends StatefulWidget {
   final List<BaseItem> list;
+  final List<GlobalKey<_BaseItemState>> keys;
 
-  const InputItems({Key key, this.list}) : super(key: key);
+  const InputItems({Key key, this.list, this.keys}) : super(key: key);
 
   @override
   _InputItemsState createState() => _InputItemsState();
@@ -133,6 +146,8 @@ class BaseItem extends StatefulWidget {
 
 class _BaseItemState extends State<BaseItem> {
   var genderStr;
+  final ageController = TextEditingController();
+  final numController = TextEditingController();
 
   @override
   void initState() {
@@ -148,7 +163,7 @@ class _BaseItemState extends State<BaseItem> {
         Text(genderStr + "："),
         Flexible(
             child: TextField(
-          // controller: maleNum,
+          controller: ageController,
           decoration: InputDecoration(
             labelText: '月龄',
             enabledBorder: OutlineInputBorder(),
@@ -159,7 +174,7 @@ class _BaseItemState extends State<BaseItem> {
         Text('个月，'),
         Flexible(
             child: TextField(
-          // controller: maleNum,
+          controller: numController,
           decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(),
             labelText: '数量',
