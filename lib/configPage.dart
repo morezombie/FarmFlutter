@@ -153,7 +153,6 @@ class _ParamFormState extends State<ParamForm> {
           return showDialog(
               context: context,
               builder: (context) {
-                Male().showAge();
                 return AlertDialog(
                   content: Text("You sure he can have a sex at " +
                       matureMonth.text +

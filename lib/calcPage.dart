@@ -64,7 +64,6 @@ class _InitiatorState extends State<Initiator> {
           return showDialog(
               context: context,
               builder: (context) {
-                Male().showAge();
                 return AlertDialog(
                   content: Text("You sure he can have a sex at " +
                       maleAge.text +
