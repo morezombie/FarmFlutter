@@ -4,7 +4,7 @@ class Animal {
   var ageMonth = 0; // age
   var isMale = false; // gender
   var feedMonth = 0; // feeding cost per month
-  var observer; // the money observer
+  CounterClerk observer; // the money observer
   var maturedPrice = 0; // selling or buying price for big one
   var newborn = false;
 
@@ -22,7 +22,7 @@ class Animal {
       return;
     }
     ++ageMonth;
-    if (observer) observer.onGrowConsume(feedMonth);
+    if (observer != null) observer.onGrowConsume(feedMonth);
   }
 
   bool isCub() => ageMonth < config.maturedMonth;
@@ -74,7 +74,7 @@ class Female extends Animal {
         gender = 'female';
       }
       newborn.register(observer);
-      pack.add(this);
+      if (observer != null) observer.incomeAnimal.add(this);
       print(
           "Congrats! newborn $gender Cub and pack size goes to ${pack.length}");
       isBabyMale = !isBabyMale;
@@ -87,8 +87,10 @@ class Female extends Animal {
   int pawn(List<Animal> pack, {bool forced = false}) {
     if (!forced && ageMonth < config.maxKeepingMonth) return 0;
     final gold = estimate();
-    pack.remove(this);
-    if (observer) observer.onSell(gold);
+    if (observer != null) {
+      observer.lostAnimal.add(this);
+      observer.onSell(gold);
+    }
     return gold;
   }
 }
@@ -104,8 +106,10 @@ class Male extends Animal {
   int pawn(List<Animal> pack, {bool forced = false}) {
     if (!forced && isCub()) return 0;
     final gold = estimate();
-    pack.remove(this);
-    if (observer) observer.onSell(gold);
+    if (observer != null)  {
+      observer.lostAnimal.add(this);
+      observer.onSell(gold);
+    }
     return gold;
   }
 }
@@ -117,6 +121,8 @@ class CounterClerk {
   var annualIncrease = [];
   var annualMaturedFemale = [];
   var annualCub = [];
+  List<Animal> lostAnimal = [];
+  List<Animal> incomeAnimal = [];
 
   void onBuyMedicine() {}
 
@@ -135,7 +141,16 @@ class CounterClerk {
     print("[selling] cash +$gold, \$$money");
   }
 
-  CounterClerk({this.money});
+  CounterClerk({this.money}) {
+    money = 0;
+    month = 0;
+    annualWealth = [];
+    annualIncrease = [];
+    annualMaturedFemale = [];
+    annualCub = [];
+    lostAnimal = [];
+    incomeAnimal = [];
+  }
 
   int estimate(List<Animal> pack) {
     var gold = 0;
@@ -166,13 +181,20 @@ class CounterClerk {
     print("At the end of Month $month");
   }
 
+  void reCount(List<Animal> pack) {
+    pack.removeWhere((element) => lostAnimal.contains(element));
+    pack.addAll(incomeAnimal);
+    lostAnimal.clear();
+    incomeAnimal.clear();
+  }
+
   void book(List<Animal> pack) {
     if (month % 12 != 0) return;
     final estate = estimate(pack);
     final wealth = money + estate;
     var increase = 0;
     if (annualWealth.isNotEmpty)
-      increase = wealth - annualWealth[-1];
+      increase = wealth - annualWealth.last;
     else
       increase = 0;
     annualWealth.add(wealth);
@@ -223,6 +245,7 @@ class Farm {
         obj.pawn(pack);
         obj.getSick();
       }
+      clerk.reCount(pack);
       clerk.book(pack);
     }
     clerk.show();
