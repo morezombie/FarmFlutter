@@ -26,8 +26,9 @@ class _InitiatorState extends State<Initiator> {
   final femaleAge = TextEditingController();
   final femaleNum = TextEditingController();
 
-  var inputs = InputItems(
-      list: List<BaseItem>(), keys: List<GlobalKey<_BaseItemState>>());
+  final inputKey = GlobalKey<_InputItemsState>();
+
+  var inputs;
 
   var model = Farm();
 
@@ -40,6 +41,10 @@ class _InitiatorState extends State<Initiator> {
 
   @override
   void initState() {
+    inputs = InputItems(
+        key: inputKey,
+        list: List<BaseItem>.empty(growable: true),
+        keys: List<GlobalKey<_BaseItemState>>.empty(growable: true));
     makeInput('公');
     makeInput('母');
     super.initState();
@@ -83,7 +88,7 @@ class _InitiatorState extends State<Initiator> {
             final isMale = key.currentState.genderStr == '公';
             model.addAnimal(isMale, age, num: num);
           }
-          model.run(120);
+          model.run(int.parse(inputKey.currentState.runningMonths.text));
         },
         child: Text("Go!"),
       ),
@@ -102,36 +107,60 @@ class InputItems extends StatefulWidget {
 }
 
 class _InputItemsState extends State<InputItems> {
+  final runningMonths= TextEditingController(text: '120');
+
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: widget.list.length,
-      itemBuilder: (BuildContext context, int index) {
-        var curItem = widget.list[index];
-        return Row(
+    return Column(
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Expanded(child: curItem),
-            IconButton(
-                icon: Icon(Icons.add_circle_outline),
-                onPressed: () {
-                  setState(() {
-                    print(curItem.genderStr);
-                    var newItem = BaseItem(genderStr: curItem.genderStr);
-                    widget.list.add(newItem);
-                  });
-                }),
-            IconButton(
-                icon: Icon(Icons.remove_circle_outline),
-                onPressed: () {
-                  if (index < 2) return;
-                  setState(() {
-                    widget.list.removeAt(index);
-                  });
-                })
+            Text('运营时长：'),
+            Flexible(
+                child: TextField(
+              controller: runningMonths,
+              decoration: InputDecoration(
+                enabledBorder: OutlineInputBorder(),
+                labelText: '月数',
+              ),
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              keyboardType: TextInputType.number,
+            ))
           ],
-        );
-      },
+        ),
+        Expanded(
+            child: ListView.builder(
+          itemCount: widget.list.length,
+          itemBuilder: (BuildContext context, int index) {
+            var curItem = widget.list[index];
+            return Row(
+              children: <Widget>[
+                Expanded(child: curItem),
+                IconButton(
+                    icon: Icon(Icons.add_circle_outline),
+                    onPressed: () {
+                      setState(() {
+                        print(curItem.genderStr);
+                        var newItem = BaseItem(genderStr: curItem.genderStr);
+                        widget.list.add(newItem);
+                      });
+                    }),
+                IconButton(
+                    icon: Icon(Icons.remove_circle_outline),
+                    onPressed: () {
+                      if (index < 2) return;
+                      setState(() {
+                        widget.list.removeAt(index);
+                      });
+                    })
+              ],
+            );
+          },
+        )),
+      ],
     );
+    ;
   }
 }
 
