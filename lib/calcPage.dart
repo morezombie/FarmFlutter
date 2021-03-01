@@ -82,6 +82,7 @@ class _InitiatorState extends State<Initiator> {
           child: Center(child: inputs)),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          model.reset();
           for (var key in inputs.keys) {
             final num = int.parse(key.currentState.numController.text);
             final age = int.parse(key.currentState.ageController.text);

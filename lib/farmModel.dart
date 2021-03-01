@@ -142,6 +142,10 @@ class CounterClerk {
   }
 
   CounterClerk({this.money}) {
+    reset();
+  }
+
+  void reset() {
     money = 0;
     month = 0;
     annualWealth = [];
@@ -208,6 +212,11 @@ class CounterClerk {
 class Farm {
   List<Animal> pack = [];
   var clerk = CounterClerk();
+
+  void reset() {
+    clerk.reset();
+    pack.clear();
+  }
 
   void addAnimal(bool isMale, int age, {int num = 1, bool buying = true}) {
     var gold = 0;
