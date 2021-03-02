@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'configPage.dart';
 import 'farmModel.dart';
+import 'displayer.dart';
 
 class Calculator extends StatelessWidget {
   @override
@@ -90,6 +91,9 @@ class _InitiatorState extends State<Initiator> {
             model.addAnimal(isMale, age, num: num);
           }
           model.run(int.parse(inputKey.currentState.runningMonths.text));
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return ChartTestPage();
+          }));
         },
         child: Text("Go!"),
       ),
