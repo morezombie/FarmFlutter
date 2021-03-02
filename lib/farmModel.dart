@@ -6,21 +6,14 @@ class Animal {
   var feedMonth = 0; // feeding cost per month
   CounterClerk observer; // the money observer
   var maturedPrice = 0; // selling or buying price for big one
-  var newborn = false;
 
-  Animal(this.ageMonth) {
-    if (ageMonth == 0) newborn = true;
-  }
+  Animal(this.ageMonth);
 
   void register(var o) {
     observer = o;
   }
 
   void growup() {
-    if (newborn) {
-      newborn = !newborn;
-      return;
-    }
     ++ageMonth;
     if (observer != null) observer.onGrowConsume(feedMonth);
   }
@@ -74,9 +67,9 @@ class Female extends Animal {
         gender = 'female';
       }
       newborn.register(observer);
-      if (observer != null) observer.incomeAnimal.add(this);
+      if (observer != null) observer.incomeAnimal.add(newborn);
       print(
-          "Congrats! newborn $gender Cub and pack size goes to ${pack.length}");
+          "Congrats! newborn $gender Cub and pack size goes to ${pack.length + 1}");
       isBabyMale = !isBabyMale;
       monthB4Birth = config.birthPeriodMonth;
     }
@@ -244,7 +237,7 @@ class Farm {
     clerk.syncWallClock(0);
     clerk.book(pack);
     for (var m = 1; m <= month; ++m) {
-      clerk.syncWallClock(m + 1);
+      clerk.syncWallClock(m);
       for (var obj in pack) {
         obj.growup();
         if (!obj.isMale) {
