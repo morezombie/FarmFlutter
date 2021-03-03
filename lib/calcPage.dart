@@ -92,7 +92,7 @@ class _InitiatorState extends State<Initiator> {
           }
           model.run(int.parse(inputKey.currentState.runningMonths.text));
           Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return ChartTestPage();
+            return StatisticPage(clerk: model.clerk);
           }));
         },
         child: Text("Go!"),
@@ -165,7 +165,6 @@ class _InputItemsState extends State<InputItems> {
         )),
       ],
     );
-    ;
   }
 }
 
