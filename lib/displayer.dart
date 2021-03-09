@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 
@@ -6,54 +5,66 @@ import 'farmModel.dart';
 
 class StatisticPage extends StatelessWidget {
   final CounterClerk clerk;
+
   const StatisticPage({Key key, this.clerk}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("营收统计")),
-      body: Column(children: [
-        Container(height: 300, child: animalBar(clerk)),
-        Container(height: 300, child: moneyBar(clerk))
+      body: Flex(direction: Axis.vertical, children: [
+        Expanded(flex: 8, child: animalBar(clerk)),
+        Expanded(flex: 12, child: moneyBar(clerk)),
       ]),
     );
   }
 
   Widget moneyBar(CounterClerk clerk) {
     List<MoneyStat> yearlyData = [], accumulateData = [];
-    for (var i = 1; i < clerk.annualCub.length; ++i) {
+    for (var i = 1; i < clerk.annualIncrease.length; ++i) {
       yearlyData.add(MoneyStat((2021 + i).toString(), clerk.annualIncrease[i]));
-      accumulateData.add(MoneyStat((2021 + i).toString(), clerk.annualWealth[i]));
+      accumulateData
+          .add(MoneyStat((2021 + i).toString(), clerk.annualWealth[i]));
     }
 
     var moneyDataSerial = [
       charts.Series<MoneyStat, String>(
-        id: '利润年度统计',
-        colorFn: (_, __) => charts.MaterialPalette.red.shadeDefault,
-        domainFn: (MoneyStat stat, _) => stat.year,
-        measureFn: (MoneyStat stat, _) => stat.money,
-        data: accumulateData,
-      ),
-      charts.Series<MoneyStat, String>(
-        id: '利润年度统计',
+        id: '累计利润',
         colorFn: (_, __) => charts.MaterialPalette.purple.shadeDefault,
         domainFn: (MoneyStat stat, _) => stat.year,
         measureFn: (MoneyStat stat, _) => stat.money,
         data: yearlyData,
-      )
+        labelAccessorFn: (MoneyStat stat, _) => '\$${stat.money.toString()}',
+        insideLabelStyleAccessorFn: (MoneyStat stat, _) =>
+            charts.TextStyleSpec(),
+      ),
+      charts.Series<MoneyStat, String>(
+        id: '年度利润',
+        colorFn: (_, __) => charts.MaterialPalette.red.shadeDefault,
+        domainFn: (MoneyStat stat, _) => stat.year,
+        measureFn: (MoneyStat stat, _) => stat.money,
+        data: accumulateData,
+        labelAccessorFn: (MoneyStat stat, _) => '${stat.money.toString()}',
+        outsideLabelStyleAccessorFn: (MoneyStat stat, _) =>
+            charts.TextStyleSpec(),
+      ),
     ];
 
     return charts.BarChart(
       moneyDataSerial,
       animate: true,
       barGroupingType: charts.BarGroupingType.stacked,
-      barRendererDecorator: charts.BarLabelDecorator<String>(),
+      barRendererDecorator: charts.BarLabelDecorator<String>(
+          labelAnchor: charts.BarLabelAnchor.middle,
+          labelPadding: -50),
       behaviors: [
         charts.SlidingViewport(),
         charts.PanAndZoomBehavior(),
+        charts.DomainHighlighter(),
+        charts.SeriesLegend()
       ],
-      domainAxis: charts.OrdinalAxisSpec(
-          viewport: charts.OrdinalViewport('2020', 6)),
+      domainAxis:
+          charts.OrdinalAxisSpec(viewport: charts.OrdinalViewport('2020', 4)),
       // vertical: false,
     );
   }
@@ -67,7 +78,7 @@ class StatisticPage extends StatelessWidget {
 
     var animalDataSerial = [
       charts.Series<AnimalStat, int>(
-        id: '动物年度统计',
+        id: '成年雌性数量',
         colorFn: (_, __) => charts.MaterialPalette.green.shadeDefault,
         domainFn: (AnimalStat stat, _) => stat.year,
         measureFn: (AnimalStat stat, _) => stat.count,
@@ -75,11 +86,10 @@ class StatisticPage extends StatelessWidget {
         data: cubData,
       ),
       charts.Series<AnimalStat, int>(
-        id: '动物年度统计',
+        id: '幼崽数量',
         colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
         domainFn: (AnimalStat stat, _) => stat.year,
         measureFn: (AnimalStat stat, _) => stat.count,
-        dashPatternFn: (_, __) => [8, 2, 4, 2],
         data: femaleData,
       )
     ];
@@ -87,26 +97,20 @@ class StatisticPage extends StatelessWidget {
     return charts.LineChart(
       animalDataSerial,
       animate: true,
-      defaultRenderer:
-      charts.LineRendererConfig(
-        // 圆点大小
-        radiusPx: 5.0,
-        stacked: false,
-        // 线的宽度
-        strokeWidthPx: 2.0,
-        // 是否显示线
-        includeLine: true,
-        // 是否显示圆点
-        includePoints: true),
-      // barGroupingType: charts.BarGroupingType.grouped,
-      // // vertical: false,
-      // barRendererDecorator: charts.BarLabelDecorator<String>(),
-      // behaviors: [
-      //   charts.SlidingViewport(),
-      //   charts.PanAndZoomBehavior(),
-      // ],
-      // domainAxis: charts.OrdinalAxisSpec(
-      //     viewport: charts.OrdinalViewport('5', 6)),
+      defaultRenderer: charts.LineRendererConfig(
+          // 圆点大小
+          radiusPx: 5.0,
+          stacked: false,
+          // 线的宽度
+          strokeWidthPx: 2.0,
+          // 是否显示线
+          includeLine: true,
+          // 是否显示圆点
+          includePoints: true),
+      behaviors: [
+        charts.SeriesLegend(),
+        charts.PanAndZoomBehavior(),
+      ],
     );
   }
 }
@@ -114,11 +118,13 @@ class StatisticPage extends StatelessWidget {
 class AnimalStat {
   final int year;
   final int count;
+
   AnimalStat(this.year, this.count);
 }
 
 class MoneyStat {
   final String year;
   final int money;
+
   MoneyStat(this.year, this.money);
 }

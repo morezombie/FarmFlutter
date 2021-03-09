@@ -146,9 +146,10 @@ class _InputItemsState extends State<InputItems> {
                     icon: Icon(Icons.add_circle_outline),
                     onPressed: () {
                       setState(() {
-                        print(curItem.genderStr);
-                        var newItem = BaseItem(genderStr: curItem.genderStr);
+                        final key = GlobalKey<_BaseItemState>();
+                        var newItem = BaseItem(key: key, genderStr: curItem.genderStr);
                         widget.list.add(newItem);
+                        widget.keys.add(key);
                       });
                     }),
                 IconButton(
@@ -179,8 +180,8 @@ class BaseItem extends StatefulWidget {
 
 class _BaseItemState extends State<BaseItem> {
   var genderStr;
-  final ageController = TextEditingController();
-  final numController = TextEditingController();
+  final ageController = TextEditingController(text: '18');
+  final numController = TextEditingController(text: '1');
 
   @override
   void initState() {

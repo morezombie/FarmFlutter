@@ -199,7 +199,9 @@ class CounterClerk {
     print("[estate] money $money and estate $estate makes it $wealth");
   }
 
-  void show() {}
+  void show() {
+    print('annual profit: $annualIncrease');
+  }
 }
 
 class Farm {

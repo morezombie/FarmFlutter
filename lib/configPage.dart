@@ -138,6 +138,7 @@ class _ParamFormState extends State<ParamForm> {
           config.priceMaturedFemale = int.parse(priceBigFemale.text);
           config.priceMaturedMale = int.parse(priceBigMale.text);
           config.priceCub = int.parse(priceCub.text);
+          Navigator.pop(context);
         },
         child: Text("Done!"),
       ),
