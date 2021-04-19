@@ -33,6 +33,14 @@ dependencies:
 
   charts_flutter: ^0.9.0
 
+  package_info: ^0.4.3+4
+
+  path_provider: ^1.6.28
+
+  flutter_downloader: ^1.5.2
+
+  open_file: ^3.0.3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

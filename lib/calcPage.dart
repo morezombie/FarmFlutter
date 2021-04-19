@@ -126,8 +126,10 @@ class _InputItemsState extends State<InputItems> {
                 child: TextField(
               controller: runningMonths,
               decoration: InputDecoration(
-                enabledBorder: OutlineInputBorder(),
-                labelText: '月数',
+                enabledBorder: InputBorder.none,
+                hintText: '月数',
+                isCollapsed: true,
+                isDense: true,
               ),
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               keyboardType: TextInputType.number,
@@ -199,8 +201,9 @@ class _BaseItemState extends State<BaseItem> {
             child: TextField(
           controller: ageController,
           decoration: InputDecoration(
-            labelText: '月龄',
-            enabledBorder: OutlineInputBorder(),
+            hintText: '月龄',
+            enabledBorder: InputBorder.none,
+            isCollapsed: true,
           ),
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           keyboardType: TextInputType.number,
@@ -210,8 +213,9 @@ class _BaseItemState extends State<BaseItem> {
             child: TextField(
           controller: numController,
           decoration: InputDecoration(
-            enabledBorder: OutlineInputBorder(),
-            labelText: '数量',
+            enabledBorder: InputBorder.none,
+            hintText: '数量',
+            isCollapsed: true
           ),
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           keyboardType: TextInputType.number,
