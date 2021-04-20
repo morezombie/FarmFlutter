@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'configPage.dart';
 import 'farmModel.dart';
 import 'displayer.dart';
+import 'updater.dart';
 
 class Calculator extends StatelessWidget {
   @override
@@ -114,7 +115,7 @@ class _InitiatorState extends State<Initiator> {
               title: Text('版本更新', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
               trailing: Icon(Icons.upgrade),
               onTap: () {
-                // update here
+                Updater();
                 Navigator.pop(context);
               },
             ),

@@ -74,7 +74,7 @@ class _ParamFormState extends State<ParamForm> {
         title: Text('农场配置'),
         actions: <Widget>[
           IconButton(
-              icon: Icon(Icons.undo_sharp),
+              icon: Icon(Icons.autorenew_sharp),
               tooltip: '',
               onPressed: () {
                 return showDialog(

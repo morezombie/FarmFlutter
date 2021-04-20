@@ -2,44 +2,49 @@ import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:open_file/open_file.dart';
+import 'package:http/http.dart' as http;
+
+final serverURL = 'http://45.77.214.205:8000/';
+
+bool compareV(String l, String r) {
+  final llist = l.split('.');
+  final rlist = r.split('.');
+  for (int i = 0; i < llist.length && i < rlist.length; ++i) {
+    if (int.parse(llist[i]) < int.parse(rlist[i])) {
+      return true;
+    }
+  }
+  return false;
+}
 
 class Updater {
-  Future<String>  getVersion() async {
+
+  void run() async {
+    if (!await checkVersion()) {
+      return;
+    }
+    if (!await downloadAPK()) {
+      return;
+    }
+    if (!await installAPK()) {
+      return;
+    }
+  }
+
+  Future<bool>  checkVersion() async {
+    // local version
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    String appName = packageInfo.appName;
-    String packageName = packageInfo.packageName;
-    String version = packageInfo.version;
-    String buildNumber = packageInfo.buildNumber;
-    // 应用名称
-    print("appName:$appName");
-    // 包名称
-    print("packageName:$packageName");
-    // 版本号
-    print("version: $version");
-    // 构建编号
-    print("buildNumber:$buildNumber");
-    return version;
+    String localVersion = packageInfo.version;
+    // get remote version
+    final res = await http.get(serverURL + '/version.json');
+    String latestVersion;
+    if (res.statusCode == 200) {
+      latestVersion = res.body;
+    }
+    return compareV(localVersion, latestVersion);
   }
 
-  void getStoragePath() async {
-    var tempDir = await getTemporaryDirectory();
-    String tempPath = tempDir.path;
-
-    var appDocDir = await getApplicationDocumentsDirectory();
-    String appDocPath = appDocDir.path;
-
-    var directory = await getExternalStorageDirectory();
-
-    String storageDirectory = directory.path;
-    // 获取临时目录
-    print("tempPath:$tempPath");
-    // 获取应用的安装目录
-    print("appDocDir:$appDocPath");
-    // 获取存储卡的路径
-    print("StorageDirectory:$storageDirectory");
-  }
-
-  void downloadAPK() async {
+  Future<bool> downloadAPK() async {
     // 获取存储卡的路径
     final directory = await getExternalStorageDirectory();
     String _localPath = directory.path;
@@ -58,14 +63,16 @@ class Updater {
       print(status);
       print(progress);
     });
+    return true;
   }
 
-  void installAPK() async {
+  Future<bool> installAPK() async {
     // 获取存储卡的路径
     final directory = await getExternalStorageDirectory();
     String localPath = directory.path;
 
     // 打开文件,apk的名称需要与下载时对应
     OpenFile.open("$localPath/shop.apk");
+    return true;
   }
 }
