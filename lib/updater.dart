@@ -51,7 +51,7 @@ class Updater {
 
     await FlutterDownloader.enqueue(
       // 远程的APK地址（注意：安卓9.0以上后要求用https）
-      url: "http://www.ionic.wang/shop.apk",
+      url: serverURL + "/farmApp.apk",
       // 下载保存的路径
       savedDir: _localPath,
       // 是否在手机顶部显示下载进度（仅限安卓）
@@ -72,7 +72,7 @@ class Updater {
     String localPath = directory.path;
 
     // 打开文件,apk的名称需要与下载时对应
-    OpenFile.open("$localPath/shop.apk");
+    OpenFile.open("$localPath/farmApp.apk");
     return true;
   }
 }

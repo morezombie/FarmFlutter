@@ -1,8 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.flutter_app"
+    package="com.morezombie.farmApp"
     android:versionName="Hound">
    <application
-        android:label="flutter_app"
+        android:label="farmApp"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
