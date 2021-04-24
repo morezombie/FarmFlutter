@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.morezombie.farmApp"
+    package="com.example.flutter_app"
     android:versionName="Hound">
    <application
         android:label="farmApp"

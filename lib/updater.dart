@@ -20,15 +20,18 @@ bool compareV(String l, String r) {
 class Updater {
 
   void run() async {
-    if (!await checkVersion()) {
-      return;
-    }
-    if (!await downloadAPK()) {
-      return;
-    }
-    if (!await installAPK()) {
-      return;
-    }
+    bool good = false;
+
+    var outDated = checkVersion();
+    outDated.then((value) => good = value);
+    if (!good)  return;
+
+    var gotApk = downloadAPK();
+    gotApk.then((value) => good = value);
+    if (!good) return;
+
+    var installed = installAPK();
+    installed.then((value) => print('Update successfully!'));
   }
 
   Future<bool>  checkVersion() async {
