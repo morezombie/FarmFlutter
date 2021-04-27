@@ -1,10 +1,14 @@
+import 'dart:convert';
+
 import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:open_file/open_file.dart';
 import 'package:http/http.dart' as http;
 
-final serverURL = 'http://45.77.214.205:8000/';
+final serverURL = '45.77.214.205:4443';
+final metaFile = '/release/output-metadata.json';
+final apkFile = '/release/app-release.apk';
 
 bool compareV(String l, String r) {
   final llist = l.split('.');
@@ -22,8 +26,8 @@ class Updater {
   void run() async {
     bool good = false;
 
-    var outDated = checkVersion();
-    outDated.then((value) => good = value);
+    var outdated = isVersionOutdated();
+    outdated.then((value) => good = value);
     if (!good)  return;
 
     var gotApk = downloadAPK();
@@ -34,16 +38,18 @@ class Updater {
     installed.then((value) => print('Update successfully!'));
   }
 
-  Future<bool>  checkVersion() async {
+  Future<bool>  isVersionOutdated() async {
     // local version
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     String localVersion = packageInfo.version;
     // get remote version
-    final res = await http.get(serverURL + '/version.json');
+    final res = await http.get(Uri.https(serverURL, metaFile));
     String latestVersion;
     if (res.statusCode == 200) {
-      latestVersion = res.body;
-    }
+      var json = jsonDecode(res.body);
+      latestVersion = json['elements']['versionName'];
+      print('Got version from server: $latestVersion');
+    } else print("server response: ${res.statusCode}");
     return compareV(localVersion, latestVersion);
   }
 
@@ -54,7 +60,7 @@ class Updater {
 
     await FlutterDownloader.enqueue(
       // 远程的APK地址（注意：安卓9.0以上后要求用https）
-      url: serverURL + "/farmApp.apk",
+      url: serverURL + apkFile,
       // 下载保存的路径
       savedDir: _localPath,
       // 是否在手机顶部显示下载进度（仅限安卓）

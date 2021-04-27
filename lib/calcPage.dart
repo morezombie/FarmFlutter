@@ -115,8 +115,41 @@ class _InitiatorState extends State<Initiator> {
               title: Text('版本更新', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
               trailing: Icon(Icons.upgrade),
               onTap: () {
-                Updater();
-                Navigator.pop(context);
+                print('updater begins...');
+                var updater = Updater();
+                var outdated = updater.isVersionOutdated();
+                outdated.then((value) {
+                  if (!value) {
+                    return showDialog(context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        content: Text('已是最新版本！'),
+                      );
+                    });
+                  } else {
+                    bool downloaded = false;
+                    updater.downloadAPK().then((value) => downloaded = value);
+                    if (!downloaded) {
+                      return showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              content: Text('下载失败！'),
+                            );
+                          });
+                    }
+                    bool installed = false;
+                    updater.installAPK().then((value) => installed = value);
+                    var installResult = installed ? '安装成功！' : '安装失败！';
+                    return showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            content: Text(installResult),
+                          );
+                        });
+                  }
+                });
               },
             ),
             ListTile(
