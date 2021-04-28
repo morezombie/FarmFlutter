@@ -11,6 +11,7 @@ final metaFile = '/release/output-metadata.json';
 final apkFile = '/release/app-release.apk';
 
 bool compareV(String l, String r) {
+  if (l.isEmpty || r.isEmpty) return false;
   final llist = l.split('.');
   final rlist = r.split('.');
   for (int i = 0; i < llist.length && i < rlist.length; ++i) {
@@ -47,7 +48,9 @@ class Updater {
     String latestVersion;
     if (res.statusCode == 200) {
       var json = jsonDecode(res.body);
-      latestVersion = json['elements']['versionName'];
+      List elements = json['elements'];
+      var element = elements.first;
+      latestVersion = element['versionName'];
       print('Got version from server: $latestVersion');
     } else print("server response: ${res.statusCode}");
     return compareV(localVersion, latestVersion);
