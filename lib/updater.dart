@@ -23,6 +23,7 @@ bool compareV(String l, String r) {
 }
 
 class Updater {
+  static bool _initialized = false;
 
   void run() async {
     bool good = false;
@@ -61,6 +62,9 @@ class Updater {
     final directory = await getExternalStorageDirectory();
     String _localPath = directory.path;
 
+    if (false == _initialized) {
+      await FlutterDownloader.initialize().then((value) => _initialized = true);
+    }
     await FlutterDownloader.enqueue(
       // 远程的APK地址（注意：安卓9.0以上后要求用https）
       url: serverURL + apkFile,
@@ -71,11 +75,13 @@ class Updater {
       // 是否允许下载完成点击打开文件（仅限安卓）
       openFileFromNotification: true,
     );
-    FlutterDownloader.registerCallback((id, status, progress) {
-      print(status);
-      print(progress);
-    });
+    FlutterDownloader.registerCallback(downloadCallback);
     return true;
+  }
+
+  static void downloadCallback(String id, DownloadTaskStatus status, int progress) {
+      print("download status: $status");
+      print("download progress: $progress");
   }
 
   Future<bool> installAPK() async {
