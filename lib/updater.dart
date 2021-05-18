@@ -1,14 +1,17 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:open_file/open_file.dart';
 import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 
 final serverURL = '45.77.214.205:4443';
 final metaFile = '/release/output-metadata.json';
 final apkFile = '/release/app-release.apk';
+final storeApkFile = 'farmApp.apk';
 
 bool compareV(String l, String r) {
   if (l.isEmpty || r.isEmpty) return false;
@@ -23,7 +26,11 @@ bool compareV(String l, String r) {
 }
 
 class Updater {
-  static bool _initialized = false;
+  static HttpClient _client = new HttpClient()
+    ..badCertificateCallback = (_certificateCheck);
+
+  static bool _certificateCheck(X509Certificate cert, String host, int port) =>
+      true; // TODO check pem or do something meaningful
 
   void run() async {
     bool good = false;
@@ -62,20 +69,26 @@ class Updater {
     final directory = await getExternalStorageDirectory();
     String _localPath = directory.path;
 
-    if (false == _initialized) {
-      await FlutterDownloader.initialize().then((value) => _initialized = true);
-    }
-    await FlutterDownloader.enqueue(
-      // 远程的APK地址（注意：安卓9.0以上后要求用https）
-      url: serverURL + apkFile,
-      // 下载保存的路径
-      savedDir: _localPath,
-      // 是否在手机顶部显示下载进度（仅限安卓）
-      showNotification: true,
-      // 是否允许下载完成点击打开文件（仅限安卓）
-      openFileFromNotification: true,
+    var dio = Dio();
+    Response response = await dio.get(
+      'https://' + serverURL + apkFile,
+      onReceiveProgress: (received, total) {
+        if (total != -1) {
+          print((received / total * 100).toStringAsFixed(0) + "%");
+        }
+      },
+      options: Options(
+          responseType: ResponseType.bytes,
+          followRedirects: false,
+          validateStatus: (status) {
+            return status < 500;
+          }),
     );
-    FlutterDownloader.registerCallback(downloadCallback);
+    var file = File("$_localPath/$storeApkFile");
+    var raf = file.openSync(mode: FileMode.write);
+    // response.data is List<int> type
+    raf.writeFromSync(response.data);
+    await raf.close();
     return true;
   }
 
