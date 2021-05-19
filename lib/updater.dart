@@ -1,11 +1,12 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 
+import 'package:dio/adapter.dart';
 import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:open_file/open_file.dart';
-import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
 
 final serverURL = '45.77.214.205:4443';
@@ -26,8 +27,18 @@ bool compareV(String l, String r) {
 }
 
 class Updater {
-  static HttpClient _client = new HttpClient()
-    ..badCertificateCallback = (_certificateCheck);
+  static Dio _dio = Dio();
+
+  void init() {
+    _dio.options = BaseOptions(
+      receiveDataWhenStatusError: true,
+      connectTimeout: 5000, // ms
+      receiveTimeout: 3000, // ms
+    );
+    (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
+      client.badCertificateCallback = (_certificateCheck);
+    };
+  }
 
   static bool _certificateCheck(X509Certificate cert, String host, int port) =>
       true; // TODO check pem or do something meaningful
@@ -35,8 +46,8 @@ class Updater {
   void run() async {
     bool good = false;
 
-    var outdated = isVersionOutdated();
-    outdated.then((value) => good = value);
+    var doUpdate = newVersionAvailable();
+    doUpdate.then((value) => good = value);
     if (!good)  return;
 
     var gotApk = downloadAPK();
@@ -47,20 +58,25 @@ class Updater {
     installed.then((value) => print('Update successfully!'));
   }
 
-  Future<bool>  isVersionOutdated() async {
+  Future<bool> newVersionAvailable() async {
+    String latestVersion;
+    // get remote version
+    try {
+      final res = await _dio.get('https://$serverURL$metaFile');
+      if (res.statusCode == 200) {
+        var json = res.data;
+        List elements = json['elements'];
+        var element = elements.first;
+        latestVersion = element['versionName'];
+        print('Got version from server: $latestVersion');
+      } else
+        print("server response: ${res.statusCode}");
+    } on DioError catch (e) {
+      throw Exception(e.message);
+    }
     // local version
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     String localVersion = packageInfo.version;
-    // get remote version
-    final res = await http.get(Uri.https(serverURL, metaFile));
-    String latestVersion;
-    if (res.statusCode == 200) {
-      var json = jsonDecode(res.body);
-      List elements = json['elements'];
-      var element = elements.first;
-      latestVersion = element['versionName'];
-      print('Got version from server: $latestVersion');
-    } else print("server response: ${res.statusCode}");
     return compareV(localVersion, latestVersion);
   }
 
@@ -69,8 +85,7 @@ class Updater {
     final directory = await getExternalStorageDirectory();
     String _localPath = directory.path;
 
-    var dio = Dio();
-    Response response = await dio.get(
+    Response response = await _dio.get(
       'https://' + serverURL + apkFile,
       onReceiveProgress: (received, total) {
         if (total != -1) {

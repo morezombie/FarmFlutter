@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:farmApp/updater.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -22,39 +23,45 @@ Drawer makeInfoDrawer(BuildContext context) {
               onTap: () {
                 print('updater begins...');
                 var updater = Updater();
-                var outdated = updater.isVersionOutdated();
+                updater.init();
+                var outdated = updater.newVersionAvailable();
                 outdated.then((value) {
                   if (!value) {
                     return showDialog(context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        content: Text('已是最新版本！'),
-                      );
-                    });
-                  } else {
-                    bool downloaded = false;
-                    updater.downloadAPK().then((value) => downloaded = value);
-                    if (!downloaded) {
-                      // return showDialog(
-                      //     context: context,
-                      //     builder: (context) {
-                      //       return AlertDialog(
-                      //         content: Text('下载失败！'),
-                      //       );
-                      //     });
-                    }
-                    bool installed = false;
-                    updater.installAPK().then((value) => installed = value);
-                    var installResult = installed ? '安装成功！' : '安装失败！';
-                    return showDialog(
-                        context: context,
                         builder: (context) {
                           return AlertDialog(
-                            content: Text(installResult),
+                            content: Text('已是最新版本！'),
                           );
                         });
                   }
+                  showDialog(context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          content: Text('开始下载新版本...'),
+                        );
+                      });
+                  updater.downloadAPK().then((value) {
+                    Navigator.pop(context);
+                    if (!value) {
+                      return showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              content: Text('下载失败！'),
+                            );
+                          });
+                    }
+                    updater.installAPK();
+                  });
+                }).catchError( (e) {
+                return showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    content: Text('无法连接服务器，或服务不可用'),
+                  );
                 });
+              });
               },
             ),
             ListTile(
