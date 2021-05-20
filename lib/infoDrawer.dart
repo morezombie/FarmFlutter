@@ -27,7 +27,7 @@ Drawer makeInfoDrawer(BuildContext context) {
                 var outdated = updater.newVersionAvailable();
                 outdated.then((value) {
                   if (!value) {
-                    makeDialog(context, '已是最新版本！');
+                    return makeDialog(context, '已是最新版本！');
                   }
                   makeDialog(context, '开始下载新版本...');
                   updater.downloadAPK().then((value) {

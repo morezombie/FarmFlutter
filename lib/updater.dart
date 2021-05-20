@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:dio/adapter.dart';
 import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:open_file/open_file.dart';
 import 'package:dio/dio.dart';
 
@@ -77,6 +76,7 @@ class Updater {
     // local version
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     String localVersion = packageInfo.version;
+    print('Got local version: $localVersion');
     return compareV(localVersion, latestVersion);
   }
 
@@ -108,11 +108,6 @@ class Updater {
       throw Exception(e.message);
     }
     return true;
-  }
-
-  static void downloadCallback(String id, DownloadTaskStatus status, int progress) {
-      print("download status: $status");
-      print("download progress: $progress");
   }
 
   Future<bool> installAPK() async {
