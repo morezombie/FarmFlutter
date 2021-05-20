@@ -33,7 +33,7 @@ class Updater {
     _dio.options = BaseOptions(
       receiveDataWhenStatusError: true,
       connectTimeout: 5000, // ms
-      receiveTimeout: 3000, // ms
+      receiveTimeout: 30000, // ms
     );
     (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
       client.badCertificateCallback = (_certificateCheck);
@@ -84,26 +84,29 @@ class Updater {
     // 获取存储卡的路径
     final directory = await getExternalStorageDirectory();
     String _localPath = directory.path;
-
-    Response response = await _dio.get(
-      'https://' + serverURL + apkFile,
-      onReceiveProgress: (received, total) {
-        if (total != -1) {
-          print((received / total * 100).toStringAsFixed(0) + "%");
-        }
-      },
-      options: Options(
-          responseType: ResponseType.bytes,
-          followRedirects: false,
-          validateStatus: (status) {
-            return status < 500;
-          }),
-    );
-    var file = File("$_localPath/$storeApkFile");
-    var raf = file.openSync(mode: FileMode.write);
-    // response.data is List<int> type
-    raf.writeFromSync(response.data);
-    await raf.close();
+    try {
+      Response response = await _dio.get(
+        'https://' + serverURL + apkFile,
+        onReceiveProgress: (received, total) {
+          if (total != -1) {
+            print((received / total * 100).toStringAsFixed(0) + "%");
+          }
+        },
+        options: Options(
+            responseType: ResponseType.bytes,
+            followRedirects: false,
+            validateStatus: (status) {
+              return status < 500;
+            }),
+      );
+      var file = File("$_localPath/$storeApkFile");
+      var raf = file.openSync(mode: FileMode.write);
+      // response.data is List<int> type
+      raf.writeFromSync(response.data);
+      await raf.close();
+    } on DioError catch (e) {
+      throw Exception(e.message);
+    }
     return true;
   }
 

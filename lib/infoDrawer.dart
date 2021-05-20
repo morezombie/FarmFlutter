@@ -27,40 +27,21 @@ Drawer makeInfoDrawer(BuildContext context) {
                 var outdated = updater.newVersionAvailable();
                 outdated.then((value) {
                   if (!value) {
-                    return showDialog(context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            content: Text('已是最新版本！'),
-                          );
-                        });
+                    makeDialog(context, '已是最新版本！');
                   }
-                  showDialog(context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          content: Text('开始下载新版本...'),
-                        );
-                      });
+                  makeDialog(context, '开始下载新版本...');
                   updater.downloadAPK().then((value) {
                     Navigator.pop(context);
                     if (!value) {
-                      return showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              content: Text('下载失败！'),
-                            );
-                          });
+                      return makeDialog(context, '下载失败！');
                     }
                     updater.installAPK();
+                  }).catchError((e) {
+                    Navigator.pop(context);
+                    return makeDialog(context, '下载超时！');
                   });
                 }).catchError( (e) {
-                return showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    content: Text('无法连接服务器，或服务不可用'),
-                  );
-                });
+                  return makeDialog(context, '无法连接服务器，或服务不可用');
               });
               },
             ),
@@ -80,4 +61,14 @@ Drawer makeInfoDrawer(BuildContext context) {
           ],
         ),
       );
+}
+
+Future<dynamic> makeDialog(BuildContext context, String text) {
+  return showDialog(
+  context: context,
+  builder: (context) {
+    return AlertDialog(
+      content: Text(text),
+    );
+  });
 }
