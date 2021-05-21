@@ -126,9 +126,12 @@ class _InputItemsState extends State<InputItems> {
         Row(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Text('运营时长：'),
-            Flexible(
-                child: TextField(
+        Image(image: AssetImage("lib/assets/clock.webp"), width: 40,),
+        SizedBox(width: 10,),
+            Text('运营时长：', style: TextStyle(fontSize: 20, color: Colors.purpleAccent),),
+            SizedBox(
+              width: 50,
+              child: TextField(
               controller: runningMonths,
               decoration: InputDecoration(
                 enabledBorder: InputBorder.none,
@@ -136,9 +139,14 @@ class _InputItemsState extends State<InputItems> {
                 isCollapsed: true,
                 isDense: true,
               ),
+              style: TextStyle(fontSize: 20),
+              textAlign: TextAlign.center,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               keyboardType: TextInputType.number,
-            ))
+            )
+            ),
+            Text('个月', style: TextStyle(fontSize: 20, color: Colors.purpleAccent)),
+            Spacer(),
           ],
         ),
         Expanded(
@@ -201,31 +209,35 @@ class _BaseItemState extends State<BaseItem> {
     return Row(
       // mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        Text(genderStr + "："),
+        Image(image: AssetImage(genderStr == '公' ? "lib/assets/furious_ox.png" : "lib/assets/furious_cow.gif"), width: 50,),
+        SizedBox(width: 10,),
+        Text(genderStr + "：", style: TextStyle(fontSize: 18, color: Colors.blueGrey)),
         Flexible(
             child: TextField(
           controller: ageController,
           decoration: InputDecoration(
             hintText: '月龄',
             enabledBorder: InputBorder.none,
-            isCollapsed: true,
           ),
+          style: TextStyle(fontSize: 18),
+          textAlign: TextAlign.end,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           keyboardType: TextInputType.number,
         )),
-        Text('个月，'),
+        Text('个月，', style: TextStyle(fontSize: 18, color: Colors.blueGrey)),
         Flexible(
             child: TextField(
           controller: numController,
+          style: TextStyle(fontSize: 18),
           decoration: InputDecoration(
             enabledBorder: InputBorder.none,
             hintText: '数量',
-            isCollapsed: true
           ),
+          textAlign: TextAlign.end,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           keyboardType: TextInputType.number,
         )),
-        Text('头'),
+        Text('头', style: TextStyle(fontSize: 18, color: Colors.blueGrey)),
       ],
     );
   }
