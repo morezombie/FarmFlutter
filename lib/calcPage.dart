@@ -99,7 +99,9 @@ class _InitiatorState extends State<Initiator> {
         },
         child: Text("Go!"),
       ),
-      drawer: makeInfoDrawer(context),
+      drawer: makeInfoDrawer(context, () {
+        setState(() {});
+      }),
     );
   }
 }

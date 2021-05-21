@@ -26,9 +26,12 @@ bool compareV(String l, String r) {
 }
 
 class Updater {
-  static Dio _dio = Dio();
+  factory Updater() => _instance;
+  static final Updater _instance = Updater._internal();
 
-  void init() {
+  var _dio;
+  Updater._internal() {
+    _dio = Dio();
     _dio.options = BaseOptions(
       receiveDataWhenStatusError: true,
       connectTimeout: 5000, // ms
@@ -38,6 +41,21 @@ class Updater {
       client.badCertificateCallback = (_certificateCheck);
     };
   }
+
+  static String _localVersion = UNK_VERSION;
+  static const String UNK_VERSION = '0.0.0';
+  static Future<String> getLocalVersionAsync() async {
+    if (_localVersion == UNK_VERSION) {
+      PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      _localVersion = packageInfo.version;
+      print('Got local version: $_localVersion');
+    }
+    return _localVersion;
+  }
+  static String getLocalVersionSync() {
+    return _localVersion;
+  }
+
 
   static bool _certificateCheck(X509Certificate cert, String host, int port) =>
       true; // TODO check pem or do something meaningful
@@ -74,9 +92,7 @@ class Updater {
       throw Exception(e.message);
     }
     // local version
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    String localVersion = packageInfo.version;
-    print('Got local version: $localVersion');
+    String localVersion = await getLocalVersionAsync();
     return compareV(localVersion, latestVersion);
   }
 

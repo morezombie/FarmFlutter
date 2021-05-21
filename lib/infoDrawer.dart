@@ -3,7 +3,14 @@ import 'package:farmApp/updater.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-Drawer makeInfoDrawer(BuildContext context) {
+Drawer makeInfoDrawer(BuildContext context, void callback()) {
+  // try detect newer version and react updating
+  if (Updater.getLocalVersionSync() == Updater.UNK_VERSION) {
+    Updater.getLocalVersionAsync().then((value) {
+      reactUpdate(context);
+      callback();
+    });
+  }
   return Drawer(
         child: ListView(
           // Important: Remove any padding from the ListView.
@@ -19,30 +26,11 @@ Drawer makeInfoDrawer(BuildContext context) {
             ),
             ListTile(
               title: Text('版本更新', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+              subtitle: Text('当前版本：${Updater.getLocalVersionSync()}'),
               trailing: Icon(Icons.upgrade),
               onTap: () {
                 print('updater begins...');
-                var updater = Updater();
-                updater.init();
-                var outdated = updater.newVersionAvailable();
-                outdated.then((value) {
-                  if (!value) {
-                    return makeDialog(context, '已是最新版本！');
-                  }
-                  makeDialog(context, '开始下载新版本...');
-                  updater.downloadAPK().then((value) {
-                    Navigator.pop(context);
-                    if (!value) {
-                      return makeDialog(context, '下载失败！');
-                    }
-                    updater.installAPK();
-                  }).catchError((e) {
-                    Navigator.pop(context);
-                    return makeDialog(context, '下载超时！');
-                  });
-                }).catchError( (e) {
-                  return makeDialog(context, '无法连接服务器，或服务不可用');
-              });
+                autoUpdate(context);
               },
             ),
             ListTile(
@@ -70,5 +58,66 @@ Future<dynamic> makeDialog(BuildContext context, String text) {
     return AlertDialog(
       content: Text(text),
     );
+  });
+}
+
+void autoUpdate(BuildContext context) {
+  var updater = Updater();
+  var outdated = updater.newVersionAvailable();
+  outdated.then((value) {
+    if (!value) {
+      return makeDialog(context, '已是最新版本！');
+    }
+    makeDialog(context, '开始下载新版本...');
+    updater.downloadAPK().then((value) {
+      Navigator.pop(context);
+      if (!value) {
+        return makeDialog(context, '下载失败！');
+      }
+      updater.installAPK();
+    }).catchError((e) {
+      Navigator.pop(context);
+      return makeDialog(context, '下载超时！');
+    });
+  }).catchError((e) {
+    return makeDialog(context, '无法连接服务器，或服务不可用');
+  });
+}
+
+
+void reactUpdate(BuildContext context) {
+  var updater = Updater();
+  var outdated = updater.newVersionAvailable();
+  outdated.then((value) {
+    if (!value) {
+      return;
+    }
+
+    showDialog(context: context,
+    builder: (context) {
+      return AlertDialog(content: Text('是否安装新版本？'), actions: <Widget>[
+            FlatButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: Text('是')),
+            FlatButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text('否')),
+          ]);
+        }).then((value) {
+      if (value == null || !value) return;
+      makeDialog(context, '开始下载新版本...');
+      updater.downloadAPK().then((value) {
+        Navigator.pop(context);
+        if (!value) {
+          return makeDialog(context, '下载失败！');
+        }
+        updater.installAPK();
+      }).catchError((e) {
+        Navigator.pop(context);
+        return makeDialog(context, '下载超时！');
+      });
+    });
+  }).catchError((e) {
+    return;
   });
 }
