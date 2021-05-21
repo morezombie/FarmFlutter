@@ -173,6 +173,7 @@ class _InputItemsState extends State<InputItems> {
                       if (index < 2) return;
                       setState(() {
                         widget.list.removeAt(index);
+                        widget.keys.removeAt(index);
                       });
                     })
               ],
