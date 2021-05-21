@@ -29,7 +29,7 @@ class StatisticPage extends StatelessWidget {
 
     var moneyDataSerial = [
       charts.Series<MoneyStat, String>(
-        id: '累计利润',
+        id: '年度利润',
         colorFn: (_, __) => charts.MaterialPalette.purple.shadeDefault,
         domainFn: (MoneyStat stat, _) => stat.year,
         measureFn: (MoneyStat stat, _) => stat.money,
@@ -39,7 +39,7 @@ class StatisticPage extends StatelessWidget {
             charts.TextStyleSpec(),
       ),
       charts.Series<MoneyStat, String>(
-        id: '年度利润',
+        id: '累计利润',
         colorFn: (_, __) => charts.MaterialPalette.red.shadeDefault,
         domainFn: (MoneyStat stat, _) => stat.year,
         measureFn: (MoneyStat stat, _) => stat.money,
