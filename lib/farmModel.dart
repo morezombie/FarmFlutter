@@ -1,11 +1,11 @@
 import 'farmConfig.dart';
 
 class Animal {
-  var ageMonth = 0; // age
-  var isMale = false; // gender
-  var feedMonth = 0; // feeding cost per month
-  CounterClerk observer; // the money observer
-  var maturedPrice = 0; // selling or buying price for big one
+  int ageMonth = 0; // age
+  bool isMale = false; // gender
+  int feedMonth = 0; // feeding cost per month
+  late CounterClerk observer; // the money observer
+  int maturedPrice = 0; // selling or buying price for big one
 
   Animal(this.ageMonth);
 
@@ -15,7 +15,7 @@ class Animal {
 
   void growup() {
     ++ageMonth;
-    if (observer != null) observer.onGrowConsume(feedMonth);
+    observer.onGrowConsume(feedMonth);
   }
 
   bool isCub() => ageMonth < config.maturedMonth;
@@ -24,7 +24,7 @@ class Animal {
     return isCub() ? config.priceCub : maturedPrice;
   }
 
-  int pawn(List<Animal> pack, {bool forced}) => 0;
+  int pawn(List<Animal> pack, {bool forced = false}) => 0;
 
   void getSick() {}
 }
@@ -34,7 +34,7 @@ class Female extends Animal {
   var birthIndex = -1;
   var monthB4Birth = 0;
 
-  Female(var ageMonth) : super(ageMonth) {
+  Female(int ageMonth) : super(ageMonth) {
     isMale = false;
     feedMonth = config.feedFemaleMonth;
     maturedPrice = config.priceMaturedFemale;
@@ -42,7 +42,7 @@ class Female extends Animal {
     if (ageMonth < firstBirthDate)
       monthB4Birth = firstBirthDate - ageMonth;
     else {
-      birthIndex = (ageMonth - firstBirthDate) / config.birthPeriodMonth;
+      birthIndex = ((ageMonth - firstBirthDate) / config.birthPeriodMonth) as int;
       monthB4Birth =
           birthIndex * config.birthPeriodMonth + firstBirthDate - ageMonth;
     }
@@ -67,7 +67,7 @@ class Female extends Animal {
         gender = 'female';
       }
       newborn.register(observer);
-      if (observer != null) observer.incomeAnimal.add(newborn);
+      observer.incomeAnimal.add(newborn);
       print(
           "Congrats! newborn $gender Cub and pack size goes to ${pack.length + 1}");
       isBabyMale = !isBabyMale;
@@ -80,10 +80,8 @@ class Female extends Animal {
   int pawn(List<Animal> pack, {bool forced = false}) {
     if (!forced && ageMonth < config.maxKeepingMonth) return 0;
     final gold = estimate();
-    if (observer != null) {
-      observer.lostAnimal.add(this);
-      observer.onSell(gold);
-    }
+    observer.lostAnimal.add(this);
+    observer.onSell(gold);
     return gold;
   }
 }
@@ -99,10 +97,8 @@ class Male extends Animal {
   int pawn(List<Animal> pack, {bool forced = false}) {
     if (!forced && isCub()) return 0;
     final gold = estimate();
-    if (observer != null)  {
-      observer.lostAnimal.add(this);
-      observer.onSell(gold);
-    }
+    observer.lostAnimal.add(this);
+    observer.onSell(gold);
     return gold;
   }
 }
@@ -134,7 +130,7 @@ class CounterClerk {
     print("[selling] cash +$gold, \$$money");
   }
 
-  CounterClerk({this.money}) {
+  CounterClerk({this.money = 0}) {
     reset();
   }
 
@@ -151,7 +147,6 @@ class CounterClerk {
 
   int estimate(List<Animal> pack) {
     var gold = 0;
-    var male = 0;
     var female = 0;
     var cub = 0;
 
@@ -162,9 +157,7 @@ class CounterClerk {
       print("[estate] animal age:${obj.ageMonth} price ${obj.estimate()}");
       if (obj.isCub()) {
         ++cub;
-      } else if (obj.isMale) {
-        ++male;
-      } else {
+      } else if (!obj.isMale) {
         ++female;
       }
     }
@@ -191,7 +184,7 @@ class CounterClerk {
     final wealth = money + estate;
     var increase = 0;
     if (annualWealth.isNotEmpty)
-      increase = wealth - annualWealth.last;
+      increase = wealth - annualWealth.last as int;
     else
       increase = 0;
     annualWealth.add(wealth);
@@ -243,7 +236,7 @@ class Farm {
       for (var obj in pack) {
         obj.growup();
         if (!obj.isMale) {
-          final Female female = obj;
+          final Female female = obj as Female;
           female.giveBirth(pack, clerk);
         }
         obj.pawn(pack);
