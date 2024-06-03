@@ -77,13 +77,13 @@ class _ParamFormState extends State<ParamForm> {
               icon: Icon(Icons.autorenew_sharp),
               tooltip: '',
               onPressed: () {
-                return showDialog(
+                showDialog(
                     context: context,
                     builder: (context) {
                       return AlertDialog(
                         content: Text('重置所有参数？'),
                         actions: <Widget>[
-                          FlatButton(
+                          TextButton(
                               onPressed: () => Navigator.pop(context, true),
                               child: Text('确定')),
                           TextButton(

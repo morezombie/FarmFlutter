@@ -1,8 +1,6 @@
-import 'dart:convert';
-import 'dart:ffi';
 import 'dart:io';
 
-import 'package:dio/adapter.dart';
+import 'package:dio/io.dart';
 import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
@@ -34,12 +32,14 @@ class Updater {
     _dio = Dio();
     _dio.options = BaseOptions(
       receiveDataWhenStatusError: true,
-      connectTimeout: 5000, // ms
-      receiveTimeout: 30000, // ms
+      connectTimeout: Duration(seconds: 5),
+      receiveTimeout: Duration(seconds: 30),
     );
-    (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (client) {
-      client.badCertificateCallback = (_certificateCheck);
-    };
+    // 信任自签名证书
+    ((_dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient =
+        (client) {
+      client.badCertificateCallback = _certificateCheck;
+    } as CreateHttpClient?);
   }
 
   static String _localVersion = UNK_VERSION;
@@ -76,7 +76,7 @@ class Updater {
   }
 
   Future<bool> newVersionAvailable() async {
-    String latestVersion;
+    String latestVersion = '';
     // get remote version
     try {
       final res = await _dio.get('https://$serverURL$metaFile');
@@ -88,7 +88,7 @@ class Updater {
         print('Got version from server: $latestVersion');
       } else
         print("server response: ${res.statusCode}");
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       throw Exception(e.message);
     }
     // local version
@@ -99,7 +99,7 @@ class Updater {
   Future<bool> downloadAPK() async {
     // 获取存储卡的路径
     final directory = await getExternalStorageDirectory();
-    String _localPath = directory.path;
+    String? _localPath = directory?.path;
     try {
       Response response = await _dio.get(
         'https://' + serverURL + apkFile,
@@ -112,7 +112,7 @@ class Updater {
             responseType: ResponseType.bytes,
             followRedirects: false,
             validateStatus: (status) {
-              return status < 500;
+              return status! < 500;
             }),
       );
       var file = File("$_localPath/$storeApkFile");
@@ -120,7 +120,7 @@ class Updater {
       // response.data is List<int> type
       raf.writeFromSync(response.data);
       await raf.close();
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       throw Exception(e.message);
     }
     return true;
@@ -129,7 +129,10 @@ class Updater {
   Future<bool> installAPK() async {
     // 获取存储卡的路径
     final directory = await getExternalStorageDirectory();
-    String localPath = directory.path;
+    String? localPath = directory?.path;
+    if (localPath == null) {
+      throw Exception('No local path');
+    }
 
     // 打开文件,apk的名称需要与下载时对应
     OpenFile.open("$localPath/farmApp.apk");

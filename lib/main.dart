@@ -1,7 +1,5 @@
-import 'farmModel.dart';
 import 'calcPage.dart';
 import 'package:flutter/material.dart';
-import 'dart:io';
 
 void main() {
   runApp(MyApp());

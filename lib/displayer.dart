@@ -6,7 +6,7 @@ import 'farmModel.dart';
 class StatisticPage extends StatelessWidget {
   final CounterClerk clerk;
 
-  const StatisticPage({Key key, this.clerk}) : super(key: key);
+  const StatisticPage({Key? key, required this.clerk}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

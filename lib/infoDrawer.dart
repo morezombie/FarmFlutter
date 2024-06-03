@@ -1,7 +1,5 @@
-import 'package:dio/dio.dart';
 import 'package:farmApp/updater.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 Drawer makeInfoDrawer(BuildContext context, void callback()) {
   // try detect newer version and react updating
@@ -23,6 +21,7 @@ Drawer makeInfoDrawer(BuildContext context, void callback()) {
                   image: AssetImage("lib/assets/bb.jpg"),
                     fit: BoxFit.cover),
               ),
+              child: Text('动物农场', style: TextStyle(color: Colors.white, fontSize: 20),),
             ),
             ListTile(
               title: Text('版本更新', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
@@ -96,10 +95,10 @@ void reactUpdate(BuildContext context) {
     showDialog(context: context,
     builder: (context) {
       return AlertDialog(content: Text('是否安装新版本？'), actions: <Widget>[
-            FlatButton(
+            TextButton(
                 onPressed: () => Navigator.pop(context, true),
                 child: Text('是')),
-            FlatButton(
+            TextButton(
                 onPressed: () => Navigator.pop(context, false),
                 child: Text('否')),
           ]);

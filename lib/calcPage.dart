@@ -4,7 +4,6 @@ import 'configPage.dart';
 import 'farmModel.dart';
 import 'displayer.dart';
 import 'infoDrawer.dart';
-import 'updater.dart';
 
 class Calculator extends StatelessWidget {
   @override
@@ -92,7 +91,7 @@ class _InitiatorState extends State<Initiator> {
             final isMale = key.currentState.genderStr == '公';
             model.addAnimal(isMale, age, num: num);
           }
-          model.run(int.parse(inputKey.currentState.runningMonths.text));
+          model.run(int.parse(inputKey.currentState!.runningMonths.text));
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return StatisticPage(clerk: model.clerk);
           }));
@@ -110,7 +109,7 @@ class InputItems extends StatefulWidget {
   final List<BaseItem> list;
   final List<GlobalKey<_BaseItemState>> keys;
 
-  const InputItems({Key key, this.list, this.keys}) : super(key: key);
+  const InputItems({Key? key, required this.list, required this.keys}) : super(key: key);
 
   @override
   _InputItemsState createState() => _InputItemsState();
@@ -188,7 +187,7 @@ class _InputItemsState extends State<InputItems> {
 class BaseItem extends StatefulWidget {
   final genderStr;
 
-  const BaseItem({Key key, this.genderStr}) : super(key: key);
+  const BaseItem({Key? key, this.genderStr}) : super(key: key);
 
   @override
   _BaseItemState createState() => _BaseItemState();
